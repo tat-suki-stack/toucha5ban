@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>README — 闘茶伍番勝負</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Zen+Old+Mincho:wght@400;700&family=Yuji+Boku&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-mincho:'筑紫明朝 Pr6 M','FOT-筑紫明朝 Pr6 M','TsukuMin Pr6','筑紫明朝','Shippori Mincho','ヒラギノ明朝 ProN','Hiragino Mincho ProN','Yu Mincho','游明朝',serif;
+  --font-mincho-old:'筑紫オールド明朝 Pr6 R','FOT-筑紫オールド明朝 Pr6 R','TsukuOldMin Pr6','筑紫オールド明朝','Zen Old Mincho','Shippori Mincho',serif;
+  --font-fude:'Yuji Boku','ヒラギノ明朝 ProN',serif;
+  --font-mono:'DM Mono','Courier New',monospace;
+  --cha-kuro:#2B2A26;
+  --cha-shiro:#F6F1E3;
+  --cha-gofun:#EDE4CC;
+  --cha-midori:#4C9A46;
+  --cha-ao:#3D7EA6;
+  --cha-ki:#E8B93E;
+  --cha-aka:#C74440;
+  --ink:#2B2A26;
+  --ink-soft:#7A7466;
+  --card:#FFFDF6;
+  --linen:#DED4BC;
+  --shadow:4px 4px 0 var(--cha-kuro);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:var(--font-mincho);background:var(--cha-shiro);color:var(--ink);
+  line-height:2;font-size:14px;
+}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px 60px}
+
+/* ---------- ヒーロー：麻布 ---------- */
+.hero{
+  background-color:var(--linen);
+  background-image:
+    radial-gradient(ellipse at 50% 26%, rgba(255,255,255,.16), transparent 62%),
+    repeating-linear-gradient(90deg, rgba(70,60,40,.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.07) 0 1px, transparent 1px 3px);
+  border-bottom:3px solid var(--cha-kuro);
+  text-align:center;padding:52px 20px 40px;
+}
+.hero .enso{width:120px;height:120px;margin:0 auto 8px;display:block}
+.hero h1{
+  font-family:var(--font-fude);font-weight:400;
+  font-size:clamp(36px,9vw,46px);letter-spacing:.04em;color:var(--ink);
+}
+.hero h1 .go{color:var(--cha-aka);font-size:.72em}
+.hero .lead{font-size:13px;color:#5C5646;margin-top:10px;letter-spacing:.1em}
+.hero .dots{display:flex;justify-content:center;gap:9px;margin-top:18px}
+.hero .dots i{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--cha-kuro);display:inline-block}
+
+/* ---------- 本文 ---------- */
+h2{
+  font-family:var(--font-mincho-old);font-size:19px;letter-spacing:.25em;
+  margin:52px 0 18px;padding-bottom:8px;
+  border-bottom:2px solid var(--cha-kuro);
+  display:flex;align-items:center;gap:10px;
+}
+h2::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--hcol,var(--cha-kuro));border:1.5px solid var(--cha-kuro);flex:none}
+h2.c-midori{--hcol:var(--cha-midori)}
+h2.c-gofun{--hcol:var(--cha-gofun)}
+h2.c-ki{--hcol:var(--cha-ki)}
+h2.c-ao{--hcol:var(--cha-ao)}
+h2.c-aka{--hcol:var(--cha-aka)}
+p{margin:14px 0}
+strong{font-weight:700}
+a{color:var(--cha-ao);font-weight:600}
+
+.card{
+  background:var(--card);border:2px solid var(--cha-kuro);border-radius:12px;
+  box-shadow:var(--shadow);padding:20px 22px;margin:20px 0;
+}
+.card ul,.card ol{padding-left:1.4em}
+.card li{margin:8px 0}
+.card li::marker{font-family:var(--font-mono);color:var(--ink-soft)}
+
+/* 得点表 */
+table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0}
+th,td{border:1.5px solid var(--cha-kuro);padding:9px 10px;text-align:center}
+th{background:var(--cha-kuro);color:var(--cha-shiro);font-weight:600;letter-spacing:.1em}
+td b{font-family:var(--font-mono);font-size:16px}
+
+/* 発酵ゲージ */
+.gauge{
+  height:14px;border-radius:7px;border:2px solid var(--cha-kuro);margin:16px 0 6px;
+  background:linear-gradient(90deg,
+    var(--cha-midori) 0%, var(--cha-gofun) 20%, var(--cha-ki) 40%,
+    var(--cha-ao) 60%, var(--cha-aka) 80%, var(--cha-kuro) 100%);
+}
+.gauge-ends{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-soft)}
+
+/* 茶リスト */
+.tealist{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.tea{
+  font-size:12px;font-weight:600;letter-spacing:.06em;
+  border:1.5px solid var(--cha-kuro);border-radius:999px;
+  padding:5px 13px;background:var(--card);
+  border-left-width:8px;
+}
+.tea.midori{border-left-color:var(--cha-midori)}
+.tea.gofun{border-left-color:var(--cha-gofun)}
+.tea.ki{border-left-color:var(--cha-ki)}
+.tea.ao{border-left-color:var(--cha-ao)}
+.tea.aka{border-left-color:var(--cha-aka)}
+.tea.kuro{border-left-color:var(--cha-kuro)}
+
+/* ファイル構成 */
+pre{
+  font-family:var(--font-mono);font-size:12px;line-height:1.9;
+  background:var(--cha-kuro);color:var(--cha-shiro);
+  border-radius:10px;padding:16px 18px;overflow-x:auto;
+  box-shadow:4px 4px 0 var(--cha-ki);margin:16px 0;
+}
+pre .c{color:#9A937F}
+code{
+  font-family:var(--font-mono);font-size:.92em;
+  background:var(--cha-gofun);border:1px solid #C9BFA5;border-radius:5px;padding:1px 6px;
+}
+
+.note{
+  border-left:6px solid var(--cha-ki);background:var(--card);
+  border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;font-size:12.5px;
+}
+
+footer{
+  text-align:center;margin-top:64px;padding-top:20px;
+  border-top:1px solid #C9BFA5;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;color:var(--ink-soft);
+  line-height:2.2;
+}
+.btn-play{
+  display:block;text-align:center;text-decoration:none;
+  font-family:var(--font-mincho);font-size:15px;font-weight:700;letter-spacing:.3em;
+  background:var(--cha-kuro);color:var(--cha-shiro);
+  border:2px solid var(--cha-kuro);border-radius:10px;
+  box-shadow:4px 4px 0 var(--cha-aka);
+  padding:15px 0;margin:26px 0 6px;
+  transition:transform .08s ease;
+}
+@media (hover:hover){
+  .btn-play:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--cha-aka)}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <svg class="enso" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="72" cy="158" rx="11" ry="8.5" transform="rotate(28 72 158)" fill="#1E1D1A" opacity=".95"/>
+    <path d="M 72 159.8 A 66 66 0 1 1 122.6 162" fill="none" stroke="#1E1D1A" stroke-width="15" stroke-linecap="round" opacity=".95"/>
+    <path d="M 69.6 165.3 A 72 72 0 1 1 124.6 167.7" fill="none" stroke="#1E1D1A" stroke-width="4" stroke-linecap="round" opacity=".55"/>
+    <path d="M 74.6 154.4 A 60 60 0 1 1 120.5 156.4" fill="none" stroke="#1E1D1A" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+    <path d="M 122.6 162 A 66 66 0 0 1 104.6 165.8" fill="none" stroke="#1E1D1A" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+    <path d="M 104.6 165.8 A 66 66 0 0 1 93.1 165.6" fill="none" stroke="#1E1D1A" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="7 4" opacity=".65"/>
+    <path d="M 93.1 165.6 A 66 66 0 0 1 81.8 163.4" fill="none" stroke="#1E1D1A" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 6" opacity=".38"/>
+    <circle cx="128" cy="168" r="1.6" fill="#1E1D1A" opacity=".45"/>
+    <circle cx="88" cy="169" r="1.2" fill="#1E1D1A" opacity=".3"/>
+  </svg>
+  <h1>闘茶<span class="go">伍</span>番勝負</h1>
+  <div class="lead">札を伏せて茶を当てる、利き茶勝負。</div>
+  <div class="dots">
+    <i style="background:var(--cha-midori)"></i><i style="background:var(--cha-gofun)"></i>
+    <i style="background:var(--cha-ki)"></i><i style="background:var(--cha-ao)"></i>
+    <i style="background:var(--cha-aka)"></i><i style="background:var(--cha-kuro)"></i>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <a class="btn-play" href="./toucha-gobansho.html">の れ ん を く ぐ る（プレイする）</a>
+
+  <h2 class="c-midori">これは何？</h2>
+  <p>
+    鎌倉〜室町時代に武士や貴族が熱狂した利き茶賭博「<strong>闘茶</strong>」をモチーフにした、ブラウザで遊べる茶種当てゲームです。
+    伏せられた四枚の札——<strong>製法・水色・香味・産地</strong>——をめくって手がかりを集め、その茶が何かを見抜きます。
+    札を少なくめくって当てるほど高得点。全五服の勝負で、あなたの「茶の目利き」が試されます。
+  </p>
+  <p>
+    収録するのは日本茶14種を含む<strong>26種類の茶</strong>。遊ぶうちに、緑茶も烏龍茶も紅茶も、
+    すべて同じ一本の木——チャノキ（<em>Camellia sinensis</em>）——から生まれることが、体でわかる作りになっています。
+  </p>
+
+  <h2 class="c-ki">遊び方</h2>
+  <div class="card">
+    <ol>
+      <li>のれんをくぐって入店する</li>
+      <li>「製・色・香・地」の四枚の札から、好きな札をタップしてめくる（最低一枚）</li>
+      <li>手がかりが揃ったと思ったら、四つの選択肢から茶を選ぶ</li>
+      <li>正解すると得点。めくった札が少ないほど高得点</li>
+      <li>五服すべて終えると、総点に応じた「位」が授けられる</li>
+    </ol>
+    <table>
+      <tr><th>めくった札</th><td>一枚</td><td>二枚</td><td>三枚</td><td>四枚</td></tr>
+      <tr><th>得点</th><td><b>80</b></td><td><b>60</b></td><td><b>40</b></td><td><b>20</b></td></tr>
+    </table>
+    <p style="font-size:12.5px;margin:6px 0 0">
+      位は総点で決まります：<strong>茶聖</strong>（320点〜）／<strong>茶匠</strong>（240点〜）／<strong>茶人</strong>（160点〜）／<strong>見習い</strong>（80点〜）／<strong>客人</strong>。満点は400点です。
+    </p>
+  </div>
+
+  <h2 class="c-ao">六大茶類のいろ</h2>
+  <p>
+    このゲームの配色は、中国茶の分類「<strong>六大茶類</strong>」——緑茶・白茶・黄茶・青茶（烏龍）・紅茶・黒茶——に由来します。
+    六つの色の違いは、実は<strong>発酵の度合いの違い</strong>。正解発表のたびに現れる発酵ゲージは、この六色の順にできています。
+  </p>
+  <div class="gauge"></div>
+  <div class="gauge-ends"><span>緑（不発酵）</span><span>青（半発酵）</span><span>紅〜黒（完全・後発酵）</span></div>
+
+  <h2 class="c-aka">収録の茶　二十六種</h2>
+  <p>味わいの記述は、実際の飲み手のレビューを参考に書き起こしています。</p>
+  <div class="tealist">
+    <span class="tea midori">煎茶</span>
+    <span class="tea midori">深蒸し煎茶</span>
+    <span class="tea midori">玉露</span>
+    <span class="tea midori">かぶせ茶</span>
+    <span class="tea midori">抹茶</span>
+    <span class="tea midori">玄米茶</span>
+    <span class="tea midori">ほうじ茶</span>
+    <span class="tea midori">京番茶</span>
+    <span class="tea midori">釜炒り茶</span>
+    <span class="tea midori">茎茶（かりがね）</span>
+    <span class="tea midori">芽茶</span>
+    <span class="tea aka">和紅茶</span>
+    <span class="tea kuro">碁石茶</span>
+    <span class="tea kuro">阿波晩茶</span>
+    <span class="tea midori">龍井茶</span>
+    <span class="tea ki">ジャスミン茶</span>
+    <span class="tea gofun">白毫銀針</span>
+    <span class="tea ao">鉄観音</span>
+    <span class="tea ao">凍頂烏龍</span>
+    <span class="tea ao">東方美人</span>
+    <span class="tea aka">ダージリン</span>
+    <span class="tea aka">アッサム</span>
+    <span class="tea aka">ウバ</span>
+    <span class="tea aka">キーマン</span>
+    <span class="tea aka">ラプサンスーチョン</span>
+    <span class="tea kuro">プーアル熟茶</span>
+  </div>
+
+  <h2 class="c-gofun">つくり</h2>
+  <div class="card">
+    <ul>
+      <li><strong>単一HTMLファイル</strong>——ビルド不要・サーバー不要・データベース不要。ダウンロードしてブラウザで開くだけで動きます</li>
+      <li>外部依存はGoogle Fonts（Shippori Mincho / Zen Old Mincho / Yuji Boku / DM Mono）のみ。オフラインでもシステムの明朝体で動作します</li>
+      <li>筑紫明朝・筑紫オールド明朝を最優先のフォント指定にしており、導入済みの環境ではそちらで表示されます</li>
+      <li>のれん・円相・カルタ札はすべてCSSとSVGによる描画で、画像ファイルを使っていません</li>
+      <li>スマートフォン（iOS Safari含む）対応。ホーム画面追加用アイコンとOGP設定済み</li>
+    </ul>
+  </div>
+
+  <h2 class="c-midori">ファイル構成と公開手順</h2>
+<pre>
+リポジトリ/
+├── toucha-gobansho.html   <span class="c"># ゲーム本体</span>
+├── readme.html            <span class="c"># このページ</span>
+├── ogp-toucha.png         <span class="c"># リンクカード用画像（1200×630）</span>
+└── apple-touch-icon.png   <span class="c"># ホーム画面アイコン（180×180）</span>
+</pre>
+  <div class="card">
+    <ol>
+      <li>上記4ファイルをGitHubリポジトリの公開階層に置く</li>
+      <li>リポジトリの Settings → Pages で GitHub Pages を有効にする</li>
+      <li><code>toucha-gobansho.html</code> 内のOGPタグ2箇所にある <code>REPO</code> を実際のリポジトリ名に書き換える</li>
+      <li>ブラウザで <code>ogp-toucha.png</code> のURLを直接開き、表示されることを確認してからSNSに投稿する</li>
+    </ol>
+  </div>
+  <div class="note">
+    ThreadsなどでリンクカードのOGPが更新されない場合は、キャッシュが残っています。URL末尾に <code>?v=2</code> のようなパラメータを付けて貼り直すと更新されます。
+  </div>
+
+  <h2 class="c-ki">出典と断り書き</h2>
+  <p style="font-size:13px">
+    茶の解説・味わいの表現は、各種の公開情報と実際の飲み手のレビューを参考にした書き起こしです。
+    闘茶の歴史記述は通説に基づく簡略なものです。ゲームという性質上、発酵度の数値は分類の目安であり、
+    実際の製品は同じ茶種でも幅があります。誤りのご指摘は歓迎します。
+  </p>
+
+  <footer>
+    TOUCHA — FIVE ROUNDS<br>
+    © 2026 Japan East India Co
+  </footer>
+</div>
+
+</body>
+</html>

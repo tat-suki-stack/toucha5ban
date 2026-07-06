@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>闘茶伍番勝負</title>
+<!-- ▼OGP：公開後、REPO名を実際のリポジトリ名に書き換えてください -->
+<meta property="og:title" content="闘茶伍番勝負">
+<meta property="og:description" content="札を伏せて茶を当てる、利き茶勝負。少なくめくるほど高得点、全五服・26種の茶。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tat-suki-stack.github.io/REPO/toucha-gobansho.html">
+<meta property="og:image" content="https://tat-suki-stack.github.io/REPO/ogp-toucha.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- ▼iOSホーム画面追加用 -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="闘茶">
+<meta name="theme-color" content="#F6F1E3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Zen+Old+Mincho:wght@400;700&family=Yuji+Boku&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-mincho:'筑紫明朝 Pr6 M','FOT-筑紫明朝 Pr6 M','TsukuMin Pr6','筑紫明朝','Shippori Mincho','ヒラギノ明朝 ProN','Hiragino Mincho ProN','Yu Mincho','游明朝',serif;
+  --font-mincho-old:'筑紫オールド明朝 Pr6 R','FOT-筑紫オールド明朝 Pr6 R','TsukuOldMin Pr6','筑紫オールド明朝','Zen Old Mincho','Shippori Mincho','ヒラギノ明朝 ProN',serif;
+  --font-fude:'Yuji Boku','ヒラギノ明朝 ProN',serif;
+  --font-mono:'DM Mono','Courier New',monospace;
+  /* 六大茶類のいろ */
+  --cha-kuro:#2B2A26;   /* 黒茶 */
+  --cha-shiro:#F6F1E3;  /* 地色（白） */
+  --cha-gofun:#EDE4CC;  /* 白茶（胡粉） */
+  --cha-midori:#4C9A46; /* 緑茶 */
+  --cha-ao:#3D7EA6;     /* 青茶（烏龍） */
+  --cha-ki:#E8B93E;     /* 黄茶・花茶 */
+  --cha-aka:#C74440;    /* 紅茶 */
+  --ink:#2B2A26;
+  --ink-soft:#7A7466;
+  --card:#FFFDF6;
+  --shadow:4px 4px 0 var(--cha-kuro);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:var(--font-mincho);background:var(--cha-shiro);color:var(--ink);
+  min-height:100vh;display:flex;justify-content:center;
+}
+body.noscroll{overflow:hidden;height:100vh}
+.app{width:100%;max-width:440px;padding:22px 16px 44px}
+
+/* ================= のれんスプラッシュ ================= */
+#splash{
+  position:fixed;inset:0;z-index:100;cursor:pointer;overflow:hidden;
+  background:
+    radial-gradient(ellipse 70% 26% at 50% 102%, rgba(216,140,50,.32), transparent 72%),
+    radial-gradient(ellipse 40% 14% at 50% 99%, rgba(236,178,86,.38), transparent 70%),
+    #14120F;
+}
+/* のれん棒 */
+.rail{
+  position:absolute;top:0;left:0;right:0;height:3.4vh;z-index:2;
+  background:linear-gradient(#26211A,#0D0B08);
+  box-shadow:0 2px 6px rgba(0,0,0,.6);
+}
+/* 二巾のパネル：上半分は中央で密着、下半分は裾へ向かって隙間が開く */
+.noren-panel{
+  position:absolute;top:3.1vh;height:82vh;
+  width:50vw;left:calc(var(--i)*50vw);
+  overflow:hidden;
+  transform-origin:top center;
+  transition:transform .95s cubic-bezier(.5,0,.3,1),opacity .95s;
+}
+/* 布（全幅の絵柄をパネルごとにずらして表示） */
+.cloth{
+  position:absolute;top:0;height:100%;width:100vw;left:var(--off);
+  background-color:#DED4BC;
+  background-image:
+    radial-gradient(ellipse at 50% 26%, rgba(255,255,255,.16), transparent 62%),
+    linear-gradient(to bottom, rgba(120,100,60,.10), transparent 12%, transparent 88%, rgba(90,72,40,.14)),
+    repeating-linear-gradient(90deg, rgba(70,60,40,.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.07) 0 1px, transparent 1px 3px);
+}
+/* しわ：パネルごとに位置の違う縦の折り目（影→光） */
+.noren-panel::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(90deg, rgba(58,47,26,.20), transparent 7%, transparent 93%, rgba(58,47,26,.24)),
+    var(--folds);
+}
+.noren-panel.p0{
+  clip-path:polygon(0 0, 100% 0, 100% 48%, calc(100% - 1.8vw) 100%, 0 100%);
+  --folds:
+    linear-gradient(93deg, transparent 22%, rgba(58,47,26,.13) 26%, rgba(255,252,238,.15) 30%, transparent 35%),
+    linear-gradient(87deg, transparent 56%, rgba(58,47,26,.10) 60%, rgba(255,252,238,.12) 64%, transparent 69%),
+    linear-gradient(90deg, transparent 80%, rgba(58,47,26,.09) 84%, rgba(255,252,238,.10) 87%, transparent 91%);
+}
+.noren-panel.p1{
+  clip-path:polygon(0 0, 100% 0, 100% 100%, 1.8vw 100%, 0 48%);
+  --folds:
+    linear-gradient(88deg, transparent 12%, rgba(58,47,26,.10) 16%, rgba(255,252,238,.11) 19%, transparent 24%),
+    linear-gradient(92deg, transparent 40%, rgba(58,47,26,.12) 44%, rgba(255,252,238,.14) 48%, transparent 53%),
+    linear-gradient(94deg, transparent 72%, rgba(58,47,26,.11) 76%, rgba(255,252,238,.12) 80%, transparent 85%);
+}
+/* くぐって開く */
+#splash.open .noren-panel.p0{transform:rotate(-6deg) translate(-115%,-4%)}
+#splash.open .noren-panel.p1{transform:rotate(6deg) translate(115%,-4%)}
+/* 円相 */
+.enso{
+  position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);
+  width:min(74vw,340px);height:min(74vw,340px);
+}
+/* 縦書き店名 */
+.splash-title{
+  position:absolute;right:7vw;top:8vh;
+  writing-mode:vertical-rl;font-family:var(--font-fude);
+  font-size:clamp(28px,7.5vw,42px);letter-spacing:.22em;color:#1E1D1A;
+}
+/* 六色の暖簾じるし */
+.splash-dots{
+  position:absolute;left:50%;bottom:8%;transform:translateX(-50%);
+  display:flex;gap:10px;
+}
+.splash-dots i{width:13px;height:13px;border-radius:50%;border:1.5px solid rgba(30,29,26,.6)}
+
+/* ================= 本体（ポップ六色） ================= */
+header{text-align:center;margin-bottom:10px}
+.eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:.3em;color:var(--ink-soft)}
+h1{
+  font-family:var(--font-fude);font-weight:400;
+  font-size:clamp(38px,11vw,50px);line-height:1.1;
+  margin-top:6px;color:var(--ink);
+}
+h1 .c{display:inline-block}
+h1 .c:nth-child(odd){transform:rotate(-3deg) translateY(2px)}
+h1 .c:nth-child(even){transform:rotate(2.5deg) translateY(-2px)}
+h1 .c:nth-child(3){font-size:.72em;color:var(--cha-aka);
+  transform:rotate(-6deg) translateY(-4px);margin:0 .06em}
+.subtitle{font-size:11.5px;color:var(--ink-soft);margin-top:8px;line-height:1.9;letter-spacing:.08em}
+.rokushoku{display:flex;justify-content:center;gap:7px;margin-top:10px;align-items:center}
+.rokushoku i{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--cha-kuro)}
+.rokushoku span{font-size:9px;color:var(--ink-soft);letter-spacing:.2em;margin-left:4px}
+
+.statusbar{
+  display:flex;justify-content:space-between;align-items:baseline;
+  background:var(--cha-kuro);color:var(--cha-shiro);
+  border-radius:10px;box-shadow:var(--shadow);
+  padding:10px 14px;margin:16px 0 18px;
+}
+.statusbar span{font-family:var(--font-mono);font-size:11px;color:#B9B2A0;letter-spacing:.05em}
+.statusbar b{font-family:var(--font-mincho);font-size:17px;font-weight:600;color:var(--cha-shiro)}
+.statusbar .pt{color:var(--cha-ki)}
+.round-name{
+  font-family:var(--font-mincho-old);
+  text-align:center;font-size:14px;letter-spacing:.55em;padding-left:.55em;
+  color:var(--ink);margin-bottom:14px;font-weight:700;
+}
+
+/* カルタ札：四枚それぞれ六色から */
+.hints{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hint{perspective:900px;aspect-ratio:5/7;cursor:pointer}
+.hint-inner{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;transition:transform .55s ease;
+}
+.hint.flipped .hint-inner{transform:rotateY(180deg)}
+.hint-face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:10px;border:2px solid var(--cha-kuro);box-shadow:var(--shadow);
+}
+.hint-back{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+}
+.hint:nth-child(1) .hint-back{background:var(--cha-midori)}
+.hint:nth-child(2) .hint-back{background:var(--cha-ki)}
+.hint:nth-child(3) .hint-back{background:var(--cha-aka)}
+.hint:nth-child(4) .hint-back{background:var(--cha-ao)}
+.hint-back .h-kanji{
+  font-family:var(--font-fude);font-size:56px;line-height:1;color:var(--cha-shiro);
+  text-shadow:2px 3px 0 rgba(43,42,38,.35);
+}
+.hint:nth-child(2) .hint-back .h-kanji{color:var(--cha-kuro);text-shadow:2px 3px 0 rgba(255,255,255,.4)}
+.hint-back .h-cost{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.25em;color:rgba(246,241,227,.9)}
+.hint:nth-child(2) .hint-back .h-cost{color:rgba(43,42,38,.7)}
+.hint-front{
+  background:var(--card);
+  transform:rotateY(180deg);
+  padding:13px 11px;
+  display:flex;justify-content:center;
+}
+.h-vertical{
+  writing-mode:vertical-rl;text-orientation:mixed;
+  height:100%;max-width:100%;
+  font-family:var(--font-mincho-old);color:var(--ink);
+  font-size:12px;line-height:1.9;letter-spacing:.12em;
+  overflow:hidden;
+}
+.h-vertical .h-label{
+  font-weight:700;font-size:12.5px;
+  padding-right:6px;margin-left:8px;letter-spacing:.35em;
+  border-right:1.5px solid var(--cha-kuro);
+}
+.hint:nth-child(1) .h-label{color:var(--cha-midori)}
+.hint:nth-child(2) .h-label{color:#B9902A}
+.hint:nth-child(3) .h-label{color:var(--cha-aka)}
+.hint:nth-child(4) .h-label{color:var(--cha-ao)}
+.hint.flipped{cursor:default}
+
+.answer-title{
+  font-family:var(--font-mincho-old);
+  margin-top:22px;text-align:center;font-size:13px;font-weight:700;
+  letter-spacing:.4em;padding-left:.4em;color:var(--ink);
+}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.opt{
+  font-family:var(--font-mincho);font-size:15px;font-weight:600;color:var(--ink);
+  letter-spacing:.1em;
+  background:var(--card);border:2px solid var(--cha-kuro);border-radius:10px;
+  box-shadow:var(--shadow);
+  padding:16px 4px;cursor:pointer;transition:transform .08s ease;
+}
+.opt:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--cha-kuro)}
+.opt.correct{background:var(--cha-midori);color:var(--cha-shiro)}
+.opt.wrong{background:var(--cha-aka);color:var(--cha-shiro)}
+.opt:disabled{pointer-events:none}
+.opt.dim{opacity:.35}
+
+.reveal{
+  display:none;margin-top:20px;background:var(--card);
+  border:2px solid var(--cha-kuro);border-radius:12px;box-shadow:var(--shadow);
+  padding:18px 16px;
+}
+.reveal .verdict{font-size:15px;font-weight:700;margin-bottom:8px;letter-spacing:.1em}
+.reveal .verdict.ok{color:var(--cha-midori)}
+.reveal .verdict.ng{color:var(--cha-aka)}
+.reveal .tea-name{
+  font-family:var(--font-fude);font-size:26px;letter-spacing:.15em;line-height:1.3;
+}
+.reveal .tea-cat{
+  font-family:var(--font-mincho-old);
+  display:inline-block;font-size:10.5px;letter-spacing:.2em;
+  border:1.5px solid var(--cha-kuro);border-radius:999px;
+  padding:3px 12px;margin-top:8px;font-weight:600;
+}
+.reveal .trivia{font-size:12.5px;line-height:2;color:#4C463A;margin-top:10px}
+
+.gauge-wrap{margin-top:16px}
+.gauge-label{font-size:10.5px;color:var(--ink-soft);letter-spacing:.2em;margin-bottom:8px;font-weight:600}
+.gauge{
+  position:relative;height:14px;border-radius:7px;border:2px solid var(--cha-kuro);
+  background:linear-gradient(90deg,
+    var(--cha-midori) 0%, var(--cha-gofun) 20%, var(--cha-ki) 40%,
+    var(--cha-ao) 60%, var(--cha-aka) 80%, var(--cha-kuro) 100%);
+}
+.gauge-pin{
+  position:absolute;top:-7px;width:6px;height:24px;border-radius:3px;
+  background:var(--cha-shiro);border:2px solid var(--cha-kuro);
+  transition:left .8s cubic-bezier(.2,.8,.2,1);
+}
+.gauge-ends{display:flex;justify-content:space-between;font-size:9px;color:var(--ink-soft);margin-top:7px}
+.gauge-note{font-size:11px;color:var(--cha-ao);margin-top:10px;line-height:1.9;font-weight:600}
+
+.btn-primary{
+  font-family:var(--font-mincho);width:100%;margin-top:18px;
+  background:var(--cha-kuro);color:var(--cha-shiro);
+  border:2px solid var(--cha-kuro);border-radius:10px;
+  box-shadow:4px 4px 0 var(--cha-ki);
+  font-size:15px;font-weight:700;letter-spacing:.3em;padding-left:.3em;
+  padding-top:15px;padding-bottom:15px;cursor:pointer;
+  transition:transform .08s ease;
+}
+.btn-primary:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--cha-ki)}
+
+.final{display:none;text-align:center;margin-top:20px;background:var(--cha-kuro);
+  color:var(--cha-shiro);
+  border:2px solid var(--cha-kuro);border-radius:12px;box-shadow:4px 4px 0 var(--cha-aka);
+  padding:28px 18px}
+.final .eyebrow{color:#B9B2A0}
+.final .score{font-family:var(--font-mono);font-size:46px;color:var(--cha-ki);margin:10px 0}
+.final .rank{
+  font-family:var(--font-fude);font-size:34px;letter-spacing:.2em;color:var(--cha-shiro);
+}
+.final p{font-size:11.5px;color:#B9B2A0;margin-top:12px;line-height:2}
+.final .rokushoku{margin-top:16px}
+.final .rokushoku i{border-color:var(--cha-shiro)}
+
+footer{
+  text-align:center;margin-top:34px;font-family:var(--font-mono);
+  font-size:9.5px;letter-spacing:.15em;color:var(--ink-soft);
+}
+
+@media (hover:hover){
+  .opt:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--cha-kuro)}
+  .btn-primary:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--cha-ki)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .hint-inner{transition:none}
+  .gauge-pin{transition:none}
+
+}
+</style>
+</head>
+<body>
+<!-- のれんスプラッシュ -->
+<div id="splash">
+  <div class="rail"></div>
+</div>
+
+<div class="app">
+  <header>
+    <div class="eyebrow">TOUCHA — FIVE ROUNDS</div>
+    <h1><span class="c">闘</span><span class="c">茶</span><span class="c">伍</span><span class="c">番</span><span class="c">勝</span><span class="c">負</span></h1>
+    <div class="subtitle">鎌倉武士が熱狂した利き茶勝負。<br>読み札は少なくめくるほど高得点。全五服。</div>
+  </header>
+
+  <div class="statusbar">
+    <span>服 <b id="round">1</b>／5</span>
+    <span>この服の点 <b class="pt" id="potential">80</b></span>
+    <span>総点 <b id="score">0</b></span>
+  </div>
+
+  <div class="round-name" id="roundName">一 服 目</div>
+
+  <div class="hints" id="hints"></div>
+
+  <div class="answer-title">此の茶、何と見る</div>
+  <div class="options" id="options"></div>
+
+  <div class="reveal" id="reveal">
+    <div class="verdict" id="verdict"></div>
+    <div class="tea-name" id="teaName"></div>
+    <div class="tea-cat" id="teaCat"></div>
+    <div class="trivia" id="trivia"></div>
+    <div class="gauge-wrap">
+      <div class="gauge-label">発酵度 —— 六色の茶も、みな同じチャノキから</div>
+      <div class="gauge"><div class="gauge-pin" id="gaugePin" style="left:0%"></div></div>
+      <div class="gauge-ends"><span>緑（不発酵）</span><span>青（半発酵）</span><span>紅〜黒（完全・後発酵）</span></div>
+      <div class="gauge-note" id="gaugeNote"></div>
+    </div>
+    <button class="btn-primary" id="btnNext">次の一服へ</button>
+  </div>
+
+  <div class="final" id="final">
+    <div class="eyebrow">勝 敗</div>
+    <div class="score" id="finalScore">0</div>
+    <div class="rank" id="finalRank"></div>
+    <p id="finalMsg"></p>
+    <div class="rokushoku">
+      <i style="background:var(--cha-midori)"></i><i style="background:var(--cha-gofun)"></i>
+      <i style="background:var(--cha-ki)"></i><i style="background:var(--cha-ao)"></i>
+      <i style="background:var(--cha-aka)"></i><i style="background:#4A4740"></i>
+    </div>
+    <button class="btn-primary" id="btnRetry">再戦する</button>
+  </div>
+
+  <footer>© 2026 Japan East India Co</footer>
+</div>
+
+<script>
+// gauge: 0=不発酵 〜 100=後発酵
+const TEAS=[
+ // ============ 日本茶 ============
+ {name:"煎茶",cat:"日本・緑茶",gauge:2,
+  hints:{製法:"摘みたての葉を蒸気で加熱して発酵を止め、揉みながら細く撚り上げる",
+         水色:"澄んだ黄金色から淡い黄緑",
+         香味:"若葉の爽やかな香り。渋みと旨みの釣り合いが身上",
+         産地:"日本各地。静岡、鹿児島、埼玉の狭山など"},
+  trivia:"日本茶の代表格。狭山茶は仕上げの「狭山火入れ」による香ばしさと濃厚な味で知られる。",
+  note:"摘んですぐ加熱して発酵を止める＝緑茶。止める時機ひとつで烏龍にも紅茶にもなる。"},
+ {name:"深蒸し煎茶",cat:"日本・緑茶",gauge:2,
+  hints:{製法:"通常の二倍から三倍の時間をかけて、じっくり深く蒸す",
+         水色:"濃い緑ににごり、細かな粉が沈む",
+         香味:"渋みが穏やかでまろやか。とろりと濃い甘みと旨み",
+         産地:"日本。静岡の牧之原台地が発祥とされる"},
+  trivia:"長く蒸すことで葉が細かく崩れ、成分が湯に溶け出しやすくなる。にごりこそ旨みの証。",
+  note:"蒸し時間というひと手間の差だけで、同じ葉がまるで別の味になる。"},
+ {name:"玉露",cat:"日本・緑茶",gauge:2,
+  hints:{製法:"収穫前の約二十日間、覆いで日光を遮って育てた葉を蒸して作る",
+         水色:"淡く澄んだ、緑がかった黄色",
+         香味:"覆い香と呼ばれる海苔のような香り。とろりと濃い旨み",
+         産地:"日本。京都の宇治や福岡の八女が名高い"},
+  trivia:"遮光で渋み成分カテキンが減り、旨み成分テアニンが残る。ぬるめの湯でゆっくり淹れるのが作法。",
+  note:"育て方が味を変える。木は同じでも、光の量ひとつで別世界になる。"},
+ {name:"かぶせ茶",cat:"日本・緑茶",gauge:2,
+  hints:{製法:"収穫前の一、二週間だけ覆いをかけて育て、蒸して仕上げる",
+         水色:"青みを帯びた明るい緑",
+         香味:"玉露に似た覆い香と旨みに、煎茶の爽やかさも併せ持つ",
+         産地:"日本。三重県は生産量日本一を誇る"},
+  trivia:"玉露と煎茶のあいだに立つお茶。覆う日数が玉露より短いぶん、両方の良さを味わえる。",
+  note:"光を遮る日数の違いが、煎茶・かぶせ茶・玉露を分けている。"},
+ {name:"抹茶",cat:"日本・緑茶",gauge:2,
+  hints:{製法:"覆いの下で育てた葉を蒸して乾かし、揉まずに石臼で挽いて粉にする",
+         水色:"鮮やかな萌黄色。茶筅で泡立てて飲む",
+         香味:"覆い香と濃厚な旨み、あとを引く心地よい苦み",
+         産地:"日本。京都の宇治や愛知の西尾など"},
+  trivia:"茶葉を丸ごと体に取り込む飲み方。茶道という総合芸術の中心に据えられた。",
+  note:"「点てる」という発明。淹れるのではなく、葉そのものを飲むお茶。"},
+ {name:"玄米茶",cat:"日本・緑茶",gauge:3,
+  hints:{製法:"番茶や煎茶に、炒った米をほぼ同じ量だけ混ぜ合わせる",
+         水色:"淡く澄んだ黄色",
+         香味:"炒り米の香ばしさが立つ、軽やかであっさりした飲み口",
+         産地:"日本各地。昭和の初めに生まれたとされる"},
+  trivia:"茶葉が半分なのでカフェインは控えめ。白く弾けた米は「花」と呼ばれ、良い玄米茶の目印。",
+  note:"お茶は他の素材と手を組む自由もある。米と出会って生まれた庶民の名品。"},
+ {name:"ほうじ茶",cat:"日本・緑茶",gauge:5,
+  hints:{製法:"番茶や茎茶などの緑茶を、高温でさっと焙煎して仕上げる",
+         水色:"澄んだ明るい赤褐色",
+         香味:"香ばしいロースト香。渋みも苦みも少なくすっきり",
+         産地:"日本。昭和初期に京都で確立されたとされる"},
+  trivia:"焙煎の熱でカフェインが飛びやすく、子どもから年配まで飲みやすい。焙じたての香りは茶屋の名物。",
+  note:"発酵ではなく「焙煎」で茶色くなったパターン。中身はあくまで緑茶。"},
+ {name:"京番茶",cat:"日本・緑茶",gauge:5,
+  hints:{製法:"大きく育った葉を枝ごと刈り、蒸して揉まずに干し、鉄釜で強く炒る",
+         水色:"透明感のある茶色",
+         香味:"焚き火を思わせる強い燻香。味は意外にすっきりと優しい",
+         産地:"日本。京都で日常茶として愛される"},
+  trivia:"初めての人は「煙くさい！」と驚くが、はまるとクセになると評判のリピーター続出茶。カフェインも控えめ。",
+  note:"香りの個性も製法が作る。好みが割れるほどの個性は、それ自体が強さ。"},
+ {name:"釜炒り茶",cat:"日本・緑茶",gauge:2,
+  hints:{製法:"蒸さずに、熱した釜で炒って発酵を止める",
+         水色:"澄みきった淡い黄金色",
+         香味:"釜香と呼ばれる独特の香ばしさ。すっきり軽い後口",
+         産地:"日本。九州の嬉野や宮崎・熊本の山あい"},
+  trivia:"中国伝来の炒る製法が九州に残ったもの。国内生産はごくわずかで、いまや希少な存在。",
+  note:"蒸すのが主流の日本に「炒る」が残る九州は、お茶が大陸から渡ってきた入口。"},
+ {name:"茎茶（かりがね）",cat:"日本・緑茶",gauge:2,
+  hints:{製法:"煎茶や玉露の仕上げで選り分けられた、茎の部分だけを集める",
+         水色:"淡く澄んだ黄緑",
+         香味:"茎ならではの青く甘い香りと、軽やかな旨み",
+         産地:"日本各地。玉露の茎は京都で「雁ヶ音」と呼ばれ人気"},
+  trivia:"茎には旨み成分テアニンが豊富。手頃な値段で上級茶の血筋を味わえる通好みの一杯。",
+  note:"葉か、茎か。同じ木のどこを飲むかでも味は変わる。"},
+ {name:"芽茶",cat:"日本・緑茶",gauge:2,
+  hints:{製法:"製茶の途中でふるい分けられた、若い芽の先だけを集める",
+         水色:"濃く深い緑",
+         香味:"小さな粒に旨みも渋みも凝縮。力強く濃厚",
+         産地:"日本各地。茶どころの隠れた掘り出し物"},
+  trivia:"くるりと巻いた芽が湯の中でゆっくりほどけ、二煎三煎と味が続く。安くて濃い、通の常備茶。",
+  note:"外れ物ではなく凝縮。選別の工程からも名脇役は生まれる。"},
+ {name:"和紅茶",cat:"日本・紅茶",gauge:80,
+  hints:{製法:"国産の茶葉を萎れさせ、揉んで完全に酸化発酵させる",
+         水色:"明るく澄んだ紅色",
+         香味:"渋みが少なくまろやか。ほのかな甘みで食事にもよく合う",
+         産地:"日本各地。鹿児島や静岡などで生産が拡大中"},
+  trivia:"海外の紅茶よりやさしい飲み口と評されることが多い。紅茶用品種「べにふうき」は華やかな香りが自慢。",
+  note:"日本の畑からも紅茶は生まれる。緑茶の国の紅茶——まさに同じ木の証明。"},
+ {name:"碁石茶",cat:"日本・後発酵茶",gauge:99,
+  hints:{製法:"蒸した葉にカビを付け、さらに桶に漬け込む二段階の発酵",
+         水色:"烏龍茶を思わせる濃い茶色",
+         香味:"乳酸発酵ならではの酸味。赤ワインにたとえる声もある",
+         産地:"日本。高知県大豊町で四百年続く手仕事"},
+  trivia:"天日干しの黒い茶葉が碁石のように見えることから命名。茶粥にすると酸味がまろやかになり米の甘みが立つ。",
+  note:"カビと乳酸菌で作る後発酵茶は日本にもある。しかも産地の多くが四国に集中する。"},
+ {name:"阿波晩茶",cat:"日本・後発酵茶",gauge:96,
+  hints:{製法:"茹でた葉を揉んで桶に漬け込み、乳酸発酵させて天日で干す",
+         水色:"淡く澄んだ黄金色",
+         香味:"ヨーグルトを思わせる爽やかな酸味と、すっきりした甘み",
+         産地:"日本。徳島県の山間部、上勝町や那賀町など"},
+  trivia:"摘む時期が遅いから「晩茶」。同じ後発酵でも碁石茶よりクセが軽く、酸味は穏やかとされる。",
+  note:"いわば「お茶の漬物」。日本の発酵文化とお茶が交差した一杯。"},
+ // ============ 中国・台湾ほか ============
+ {name:"龍井茶",cat:"中国・緑茶",gauge:2,
+  hints:{製法:"釜で炒って発酵を止め、手のひらで葉を平たく押しつけながら仕上げる",
+         水色:"淡い黄緑色",
+         香味:"炒り栗のような甘く香ばしい香り。旨みが強く渋みは穏やか",
+         産地:"中国。浙江省杭州、西湖のほとり"},
+  trivia:"中国緑茶の最高峰とされる「西湖龍井」。蒸す日本、炒る中国——同じ緑茶でも止め方が違う。",
+  note:"「蒸す」か「炒る」か。発酵の止め方ひとつで香りは大きく変わる。"},
+ {name:"ジャスミン茶",cat:"中国・花茶",gauge:8,
+  hints:{製法:"緑茶や白茶にジャスミンの生花を重ね、香りを移す作業を繰り返す",
+         水色:"淡く明るい黄色",
+         香味:"華やかな花の香り。味わいは緑茶に近くすっきり",
+         産地:"中国。福建省の福州が本場"},
+  trivia:"上級品ほど花を替えて何度も香りを移す。沖縄のさんぴん茶も同じ系統の仲間。",
+  note:"茶葉は香りをよく吸う。保存で匂い移りに気をつけるべき理由もここにある。"},
+ {name:"白毫銀針",cat:"中国・白茶",gauge:12,
+  hints:{製法:"揉まず炒らず、萎れさせて乾かすだけ。人の手を最小限しか加えない",
+         水色:"ごく淡い杏色",
+         香味:"ほのかな甘みと繊細な花の香り。新芽のやわらかさ",
+         産地:"中国。福建省"},
+  trivia:"白いうぶ毛をまとった新芽だけで作る白茶の最高級品。「一年茶、三年薬、七年宝」と熟成も楽しまれる。",
+  note:"「何もしない」ことが製法になる微発酵の白茶。緑茶と烏龍のあいだに立つ。"},
+ {name:"鉄観音",cat:"中国・烏龍茶",gauge:35,
+  hints:{製法:"葉を萎れさせては揺すり、頃合いで加熱して発酵を途中で止める",
+         水色:"金色から淡い橙色",
+         香味:"蘭の花にたとえられる香りと、まろやかな余韻「観音韻」",
+         産地:"中国。福建省の安渓"},
+  trivia:"烏龍茶の代名詞。観音様の夢のお告げで見つかった茶樹、という伝説から名がついたとされる。",
+  note:"発酵を「途中で止める」のが烏龍茶。止める位置こそ職人の腕の見せどころ。"},
+ {name:"凍頂烏龍",cat:"台湾・烏龍茶",gauge:25,
+  hints:{製法:"発酵浅めの半発酵。布に包んで転がし、球のように固く揉み込む",
+         水色:"明るい黄金色",
+         香味:"金木犀のような甘い花の香りと、なめらかなコク",
+         産地:"台湾。南投県の凍頂山のあたり"},
+  trivia:"台湾烏龍の代表格。丸まった茶葉が湯の中でゆっくり開いていく姿も見どころのひとつ。",
+  note:"同じ烏龍でも発酵が浅いと緑茶寄りの爽やかさに。発酵度はグラデーション。"},
+ {name:"東方美人",cat:"台湾・烏龍茶",gauge:60,
+  hints:{製法:"ウンカという小さな虫にわざと葉をかじらせてから作る、発酵深めの烏龍",
+         水色:"輝くような琥珀色",
+         香味:"蜂蜜と熟した果実を思わせる甘い「蜜香」",
+         産地:"台湾。新竹県など"},
+  trivia:"虫にかじられた葉の防御反応が香りを生む。だから無農薬でしか作れない。英国女王が名付けたという逸話も。",
+  note:"発酵深めの烏龍は限りなく紅茶に近い。緑茶と紅茶が地続きだとわかる一杯。"},
+ {name:"ダージリン",cat:"インド・紅茶",gauge:85,
+  hints:{製法:"萎れさせ、揉み、しっかり酸化発酵させてから乾燥させる完全発酵",
+         水色:"明るいオレンジ色。春摘みはことに淡い",
+         香味:"マスカットにたとえられる香り「マスカテルフレーバー」",
+         産地:"インド北東部。ヒマラヤ山麓の高地"},
+  trivia:"「紅茶のシャンパン」。春摘みは緑茶のように若々しく、同じ茶園でも季節ごとに別物になる。",
+  note:"完全に発酵させれば紅茶。ここまでの茶も、すべて同じチャノキの葉。"},
+ {name:"アッサム",cat:"インド・紅茶",gauge:90,
+  hints:{製法:"完全発酵。葉を潰し、裂き、丸めるCTC製法も広く使われる",
+         水色:"濃く深い赤褐色",
+         香味:"麦芽のような濃厚なコクと甘み。ミルクに負けない力強さ",
+         産地:"インド北東部の低地。世界最大級の紅茶産地"},
+  trivia:"ミルクティーの王様。葉の大きなアッサム種から作られるが、これも種としては同じチャノキ。",
+  note:"チャノキには中国種とアッサム種がある。それでも学名はひとつ、カメリア・シネンシス。"},
+ {name:"ウバ",cat:"スリランカ・紅茶",gauge:88,
+  hints:{製法:"完全発酵。乾いた季節風の吹く時期の茶葉が最高とされる",
+         水色:"鮮やかな紅。カップの縁が金色に輝く",
+         香味:"メントールを思わせる爽快な刺激香「ウバフレーバー」",
+         産地:"スリランカ。中央山脈の東側高地"},
+  trivia:"世界三大紅茶のひとつ。キリッと強い渋みは、ミルクティーにすると本領を発揮する。",
+  note:"標高と風土で香りが決まる。ワインと同じテロワールの世界がお茶にもある。"},
+ {name:"キーマン",cat:"中国・紅茶",gauge:87,
+  hints:{製法:"完全発酵。細くよられた小さな茶葉に丁寧に仕上げる",
+         水色:"深みのある明るい紅色",
+         香味:"蘭や薔薇にたとえられる甘い香りと、かすかなスモーキーさ",
+         産地:"中国。安徽省の祁門県"},
+  trivia:"世界三大紅茶のひとつで英国王室も愛飲。紅茶の故郷は実はインドではなく中国。",
+  note:"紅茶づくりは中国で生まれ、海を渡って世界へ広がった。"},
+ {name:"ラプサンスーチョン",cat:"中国・紅茶",gauge:92,
+  hints:{製法:"完全発酵させた茶葉を、松の木を燃やした煙で燻して仕上げる",
+         水色:"濃い赤褐色",
+         香味:"スモークベーコンにもたとえられる強烈な燻煙香",
+         産地:"中国。福建省の武夷山"},
+  trivia:"世界最古の紅茶とされる「正山小種」。この強烈な香りが17世紀の欧州を魅了し、紅茶ブームの火付け役に。",
+  note:"英国のティータイムの原点は、この一杯の煙の香りから始まった。"},
+ {name:"プーアル熟茶",cat:"中国・黒茶",gauge:100,
+  hints:{製法:"緑茶に仕上げたあと、麹菌などの微生物でさらに発酵させる後発酵",
+         水色:"黒に近い、深く濃い紅",
+         香味:"土や樽を思わせる熟成香。とろりとまろやかで渋みが少ない",
+         産地:"中国。雲南省"},
+  trivia:"ワインのように年代物ほど珍重され、投機の対象になるほど。脂の多い食事の相棒として飲茶に欠かせない。",
+  note:"酸化発酵の先にある微生物発酵。チャノキの旅の、ひとまずの終着点。"}
+];
+
+const HINT_DEFS=[
+  {key:"製法",kanji:"製",label:"製法"},
+  {key:"水色",kanji:"色",label:"水色"},
+  {key:"香味",kanji:"香",label:"香味"},
+  {key:"産地",kanji:"地",label:"産地"}
+];
+const POINTS=[80,60,40,20];
+const KANJI_NUM=["一","二","三","四","五"];
+
+let order=[],round=0,score=0,tea=null,flips=0,answered=false;
+const $=id=>document.getElementById(id);
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function pickOptions(answer){
+  // 発酵度の近い茶を優先して、まぎらわしい取り札に
+  const others=TEAS.filter(t=>t.name!==answer.name)
+    .sort((a,b)=>Math.abs(a.gauge-answer.gauge)-Math.abs(b.gauge-answer.gauge));
+  const near=others.slice(0,8);
+  const picked=shuffle(near).slice(0,3);
+  return shuffle([answer,...picked]);
+}
+
+function newGame(){
+  order=shuffle([...TEAS]).slice(0,5);
+  round=0;score=0;
+  $("final").style.display="none";
+  $("score").textContent="0";
+  startRound();
+}
+
+function startRound(){
+  tea=order[round];flips=0;answered=false;
+  $("round").textContent=round+1;
+  $("roundName").textContent=KANJI_NUM[round]+" 服 目";
+  $("potential").textContent=POINTS[0];
+  $("reveal").style.display="none";
+
+  const hintsEl=$("hints");hintsEl.innerHTML="";
+  HINT_DEFS.forEach(h=>{
+    const d=document.createElement("div");
+    d.className="hint";
+    d.innerHTML=
+      '<div class="hint-inner">'+
+        '<div class="hint-face hint-back">'+
+          '<div class="h-kanji">'+h.kanji+'</div>'+
+          '<div class="h-cost">FUDA</div>'+
+        '</div>'+
+        '<div class="hint-face hint-front">'+
+          '<div class="h-vertical"><span class="h-label">'+h.label+'</span>'+tea.hints[h.key]+'</div>'+
+        '</div>'+
+      '</div>';
+    d.onclick=()=>flipHint(d);
+    hintsEl.appendChild(d);
+  });
+
+  const optEl=$("options");optEl.innerHTML="";
+  pickOptions(tea).forEach(t=>{
+    const b=document.createElement("button");
+    b.className="opt";b.textContent=t.name;
+    b.onclick=()=>answer(b,t);
+    optEl.appendChild(b);
+  });
+}
+
+function flipHint(el){
+  if(answered||el.classList.contains("flipped"))return;
+  el.classList.add("flipped");
+  flips++;
+  $("potential").textContent=POINTS[Math.min(flips,4)-1];
+}
+
+function answer(btn,chosen){
+  if(answered)return;
+  if(flips===0){ // 最低一枚はめくる。味わってこその闘茶
+    flipHint(document.querySelector(".hint:not(.flipped)"));
+  }
+  answered=true;
+  const ok=chosen.name===tea.name;
+  const pts=ok?POINTS[Math.min(flips,4)-1]:0;
+  score+=pts;
+  $("score").textContent=score;
+
+  document.querySelectorAll(".opt").forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===tea.name)b.classList.add("correct");
+    else if(b===btn&&!ok)b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  document.querySelectorAll(".hint").forEach(h=>h.classList.add("flipped"));
+
+  const v=$("verdict");
+  v.textContent=ok?"当たり　＋"+pts+"点":"外れ——正解は";
+  v.className="verdict "+(ok?"ok":"ng");
+  $("teaName").textContent=tea.name;
+  $("teaCat").textContent=tea.cat;
+  $("teaCat").style.background=catColor(tea.cat);
+  $("teaCat").style.color=catText(tea.cat);
+  $("trivia").textContent=tea.trivia;
+  $("gaugeNote").textContent=tea.note;
+  $("reveal").style.display="block";
+  requestAnimationFrame(()=>{
+    $("gaugePin").style.left="calc("+tea.gauge+"% - 2px)";
+  });
+  $("btnNext").textContent=(round<4)?"次の一服へ":"勝敗を見る";
+  $("reveal").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function next(){
+  if(round<4){round++;startRound();window.scrollTo({top:0,behavior:"smooth"});}
+  else showFinal();
+}
+
+function showFinal(){
+  $("finalScore").textContent=score;
+  const ranks=[
+    [320,"茶　聖","一枚の札で見抜く境地。栄西も驚く目利きです。"],
+    [240,"茶　匠","堂々たる利き茶。茶会の主役が務まります。"],
+    [160,"茶　人","確かな舌。あと一歩で匠の域。"],
+    [80,"見習い","お茶の世界の入口へようこそ。"],
+    [0,"客　人","まずは一服。緑茶も烏龍も紅茶も、同じ木から始まっています。"]
+  ];
+  const r=ranks.find(x=>score>=x[0]);
+  $("finalRank").textContent=r[1];
+  $("finalMsg").textContent=r[2]+"（満点400点）";
+  $("final").style.display="block";
+  $("final").scrollIntoView({behavior:"smooth"});
+}
+
+$("btnNext").onclick=next;
+$("btnRetry").onclick=()=>{newGame();window.scrollTo({top:0,behavior:"smooth"})};
+newGame();
+
+// ---- 六大茶類カラー ----
+function catColor(cat){
+  if(/緑茶/.test(cat))return"var(--cha-midori)";
+  if(/白茶/.test(cat))return"var(--cha-gofun)";
+  if(/花茶/.test(cat))return"var(--cha-ki)";
+  if(/烏龍/.test(cat))return"var(--cha-ao)";
+  if(/紅茶/.test(cat))return"var(--cha-aka)";
+  return"var(--cha-kuro)"; // 黒茶・後発酵
+}
+function catText(cat){
+  return /白茶|花茶/.test(cat)?"#2B2A26":"#F6F1E3";
+}
+
+// ---- のれんスプラッシュ ----
+(function(){
+  const sp=document.getElementById("splash");
+  // 筆の円相：起筆の墨だまり→主筆→かすれ→収筆は細く割れて、つながるかつながらないか
+  const ENSO=
+   '<svg class="enso" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">'+
+     '<ellipse cx="72" cy="158" rx="11" ry="8.5" transform="rotate(28 72 158)" fill="#1E1D1A" opacity=".95"/>'+
+     '<path d="M 72 159.8 A 66 66 0 1 1 122.6 162" fill="none" stroke="#1E1D1A" stroke-width="15" stroke-linecap="round" opacity=".95"/>'+
+     '<path d="M 69.6 165.3 A 72 72 0 1 1 124.6 167.7" fill="none" stroke="#1E1D1A" stroke-width="4" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M 74.6 154.4 A 60 60 0 1 1 120.5 156.4" fill="none" stroke="#1E1D1A" stroke-width="4" stroke-linecap="round" opacity=".5"/>'+
+     '<path d="M 122.6 162 A 66 66 0 0 1 104.6 165.8" fill="none" stroke="#1E1D1A" stroke-width="7" stroke-linecap="round" opacity=".9"/>'+
+     '<path d="M 104.6 165.8 A 66 66 0 0 1 93.1 165.6" fill="none" stroke="#1E1D1A" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="7 4" opacity=".65"/>'+
+     '<path d="M 93.1 165.6 A 66 66 0 0 1 81.8 163.4" fill="none" stroke="#1E1D1A" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 6" opacity=".38"/>'+
+     '<circle cx="128" cy="168" r="1.6" fill="#1E1D1A" opacity=".45"/>'+
+     '<circle cx="88" cy="169" r="1.2" fill="#1E1D1A" opacity=".3"/>'+
+   '</svg>';
+  const CLOTH=ENSO+
+   '<div class="splash-title">闘茶伍番勝負</div>'+
+   '<div class="splash-dots">'+
+     '<i style="background:var(--cha-midori)"></i><i style="background:var(--cha-gofun)"></i>'+
+     '<i style="background:var(--cha-ki)"></i><i style="background:var(--cha-ao)"></i>'+
+     '<i style="background:var(--cha-aka)"></i><i style="background:var(--cha-kuro)"></i>'+
+   '</div>';
+  // 二巾：静止。上半分は密着、下半分の隙間はクリップ形状で表現
+  for(let i=0;i<2;i++){
+    const p=document.createElement("div");
+    p.className="noren-panel p"+i;
+    p.style.setProperty("--i",i);
+    const c=document.createElement("div");
+    c.className="cloth";
+    c.style.setProperty("--off",(-i*50)+"vw");
+    c.innerHTML=CLOTH;
+    p.appendChild(c);
+    sp.appendChild(p);
+  }
+  let opened=false;
+  function enter(){
+    if(opened)return;opened=true;
+    sp.classList.add("open");
+    document.body.classList.remove("noscroll");
+    setTimeout(()=>{sp.style.display="none"},1000);
+  }
+  sp.addEventListener("click",enter);
+  document.body.classList.add("noscroll");
+})();
+</script>
+</body>
+</html>
