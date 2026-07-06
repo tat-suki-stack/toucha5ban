@@ -112,13 +112,6 @@ body.noscroll{overflow:hidden;height:100vh}
   writing-mode:vertical-rl;font-family:var(--font-fude);
   font-size:clamp(28px,7.5vw,42px);letter-spacing:.22em;color:#1E1D1A;
 }
-/* 六色の暖簾じるし */
-.splash-dots{
-  position:absolute;left:50%;bottom:8%;transform:translateX(-50%);
-  display:flex;gap:10px;
-}
-.splash-dots i{width:13px;height:13px;border-radius:50%;border:1.5px solid rgba(30,29,26,.6)}
-
 /* ================= 本体（ポップ六色） ================= */
 header{text-align:center;margin-bottom:10px}
 .eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:.3em;color:var(--ink-soft)}
@@ -705,12 +698,7 @@ function catText(cat){
      '<circle cx="88" cy="169" r="1.2" fill="#1E1D1A" opacity=".3"/>'+
    '</svg>';
   const CLOTH=ENSO+
-   '<div class="splash-title">闘茶伍番勝負</div>'+
-   '<div class="splash-dots">'+
-     '<i style="background:var(--cha-midori)"></i><i style="background:var(--cha-gofun)"></i>'+
-     '<i style="background:var(--cha-ki)"></i><i style="background:var(--cha-ao)"></i>'+
-     '<i style="background:var(--cha-aka)"></i><i style="background:var(--cha-kuro)"></i>'+
-   '</div>';
+   '<div class="splash-title">闘茶伍番勝負</div>';
   // 二巾：静止。上半分は密着、下半分の隙間はクリップ形状で表現
   for(let i=0;i<2;i++){
     const p=document.createElement("div");
